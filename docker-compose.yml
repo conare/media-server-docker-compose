@@ -1,7 +1,7 @@
 plex:
   build: ../pms-docker
   dockerfile: Dockerfile
-  restart: unless-stopped
+  restart: always
   container_name: plex
   ports:
     - 32400:32400
@@ -23,7 +23,7 @@ plex:
 transmission:
   build: ../transmission
   dockerfile: Dockerfile
-  restart: unless-stopped
+  restart: always
   container_name: transmission
   links:
     - plex
@@ -51,6 +51,7 @@ transmission:
 jackett:
   build: ../docker-jackett/
   dockerfile: Dockerfile
+  restart: always
   container_name: jackett
   ports:
     - 9117:9117
@@ -62,13 +63,13 @@ jackett:
     - PUID=1000
     - PGID=1000
   volumes:
-    - /Users/conare/completed:/config 
+    - /Users/conare/jacket/config:/config 
     - /Users/conare/media:/downloads
 
 sonarr:
   build: ../docker-sonarr/
   dockerfile: Dockerfile
-  restart: unless-stopped
+  restart: always
   container_name: sonarr
   links:
     - transmission
@@ -82,5 +83,25 @@ sonarr:
     - 8989:8989
     - 9898:9898
   volumes:
-    - /Users/conare/completed:/volumes/completed
+    - /Users/conare/media:/volumes/completed
     - /Users/conare/media:/volumes/media
+    - /Users/conare/sonarr/config:/volumes/config
+radarr:
+  build: ../docker-radarr/
+  dockerfile: Dockerfile
+  restart: always
+  container_name: radarr
+  links:
+    - transmission
+    - plex
+    - jackett
+  environment:
+  - TZ=Australia/Melbourne
+  - PUID=1000
+  - PGID=1000
+  ports:
+    - 7878:7878
+  volumes:
+    - /Users/conare/radarr/config:/config
+    - /Users/conare/media:/downloads
+    - /Users/conare/media:/movies
