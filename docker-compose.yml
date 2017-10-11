@@ -16,10 +16,9 @@ plex:
   environment:
     - TZ=Australia/Melbourne
   volumes:
-    - /Users/conare/plex/database:/config
-    - /Users/conare/plex/transcode:/transcode
-    - /Users/conare/media:/data
-
+    - ~/plex/database:/config
+    - ~/plex/transcode:/transcode
+    - ~/media:/data
 transmission:
   build: ../transmission
   dockerfile: Dockerfile
@@ -34,7 +33,7 @@ transmission:
     - TR_IDLE_SEEDING_LIMIT_ENABLED=true
     - TR_IDLE_SEEDING_LIMIT=1
     - TR_RATIO_LIMIT_ENABLED=true
-    - TR_RATIO_LIMIT=4
+    - TR_RATIO_LIMIT=1
     - TR_DOWNLOAD_DIR=/downloads
     - TR_INCOMPLETE_DIR_ENABLED=false
     - TR_RENAME_PARTIAL_FILES=true
@@ -43,11 +42,10 @@ transmission:
     - USERID=1000
     - GROUPID=1000
   volumes:
-    - /Users/conare/transmission:/var/lib/transmission-daemon/info
+    - ~/transmission:/var/lib/transmission-daemon/info
     #set transmission or sonarr download folder to /downloads
-    - /Users/conare/media:/downloads
-    - /Users/conare/tmp:/var/lib/transmission-daemon/incomplete
-
+    - ~/media/downloads:/downloads
+    - ~/tmp:/var/lib/transmission-daemon/incomplete
 jackett:
   build: ../docker-jackett/
   dockerfile: Dockerfile
@@ -63,9 +61,8 @@ jackett:
     - PUID=1000
     - PGID=1000
   volumes:
-    - /Users/conare/jacket/config:/config 
-    - /Users/conare/media:/downloads
-
+    - ~/jackett/config:/config
+    - ~/media:/downloads
 sonarr:
   build: ../docker-sonarr/
   dockerfile: Dockerfile
@@ -76,16 +73,16 @@ sonarr:
     - plex
     - jackett
   environment:
-  - TZ=Australia/Melbourne
-  - PUID=1000
-  - PGID=1000
+    - TZ=Australia/Melbourne
+    - PUID=1000
+    - PGID=1000
   ports:
     - 8989:8989
     - 9898:9898
   volumes:
-    - /Users/conare/media:/volumes/completed
-    - /Users/conare/media:/volumes/media
-    - /Users/conare/sonarr/config:/volumes/config
+    - ~/media/series:/volumes/completed
+    - ~/media/series:/volumes/media
+    - ~/sonarr/config:/volumes/config
 radarr:
   build: ../docker-radarr/
   dockerfile: Dockerfile
@@ -96,12 +93,12 @@ radarr:
     - plex
     - jackett
   environment:
-  - TZ=Australia/Melbourne
-  - PUID=1000
-  - PGID=1000
+    - TZ=Australia/Melbourne
+    - PUID=1000
+    - PGID=1000
   ports:
     - 7878:7878
   volumes:
-    - /Users/conare/radarr/config:/config
-    - /Users/conare/media:/downloads
-    - /Users/conare/media:/movies
+    - ~/radarr/config:/config
+    - ~/media/movies:/downloads
+    - ~/media/movies:/movies
