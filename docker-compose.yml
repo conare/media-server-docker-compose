@@ -1,31 +1,8 @@
-plex:
-  build: ../pms-docker
-  dockerfile: Dockerfile
-  restart: always
-  container_name: plex
-  ports:
-    - 32400:32400
-    - 3005:3005
-    - 8324:8324
-    - 32469:32469
-    - 1900:1900
-    - 32410:32410
-    - 32412:32412
-    - 32413:32413
-    - 32414:32414
-  environment:
-    - TZ=Australia/Melbourne
-  volumes:
-    - ~/plex/database:/config
-    - ~/plex/transcode:/transcode
-    - ~/media:/data
 transmission:
   build: ../transmission
   dockerfile: Dockerfile
   restart: always
   container_name: transmission
-  links:
-    - plex
   ports:
     - 9091:9091
   environment:
@@ -44,8 +21,22 @@ transmission:
   volumes:
     - ~/transmission:/var/lib/transmission-daemon/info
     #set transmission or sonarr download folder to /downloads
-    - ~/media/downloads:/downloads
+    - /media/nas/series:/downloads
     - ~/tmp:/var/lib/transmission-daemon/incomplete
+deluge:
+  image: linuxserver/deluge
+  restart: always
+  container_name: deluge
+  ports:
+    - 8112:8112
+  environment:
+    - TZ=Australia/Melbourne
+    - PGID=1001
+    - PUID=1001
+  volumes:
+    - ~/deluge/config:/var/lib/transmission-daemon/info
+    #set transmission or sonarr download folder to /downloads
+    - /media/nas/movies:/downloads
 jackett:
   build: ../docker-jackett/
   dockerfile: Dockerfile
@@ -55,7 +46,6 @@ jackett:
     - 9117:9117
   links:
     - transmission
-    - plex
   environment:
     - TZ=Australia/Melbourne
     - PUID=1000
@@ -70,7 +60,6 @@ sonarr:
   container_name: sonarr
   links:
     - transmission
-    - plex
     - jackett
   environment:
     - TZ=Australia/Melbourne
@@ -80,8 +69,8 @@ sonarr:
     - 8989:8989
     - 9898:9898
   volumes:
-    - ~/media/series:/volumes/completed
-    - ~/media/series:/volumes/media
+    - /media/nas/series:/volumes/completed
+    - /media/nas/series:/volumes/media
     - ~/sonarr/config:/volumes/config
 radarr:
   build: ../docker-radarr/
@@ -89,8 +78,7 @@ radarr:
   restart: always
   container_name: radarr
   links:
-    - transmission
-    - plex
+    - deluge
     - jackett
   environment:
     - TZ=Australia/Melbourne
@@ -100,5 +88,5 @@ radarr:
     - 7878:7878
   volumes:
     - ~/radarr/config:/config
-    - ~/media/movies:/downloads
-    - ~/media/movies:/movies
+    - /media/nas/movies:/downloads
+    - /media/nas/movies:/movies
